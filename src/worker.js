@@ -149,71 +149,111 @@ const HTML_ADMIN = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>管理后台</title>
   <style>
-    :root { --bg:#0f1115; --card:#1a1d24; --text:#e8eaed; --muted:#9aa0a6; --accent:#4f8cff; --border:#2a2f3a; --ok:#3dd68c; --err:#ff6b6b; --danger:#e74c3c; }
+    :root { --bg:#0b0d11; --card:#151820; --text:#e8eaed; --muted:#8b929a; --accent:#4f8cff; --border:#252a35; --ok:#3dd68c; --err:#ff6b6b; --danger:#e74c3c; --input:#0e1117; }
     * { box-sizing: border-box; margin:0; padding:0; }
-    body { font-family: system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:2rem 1rem; }
-    .wrap { max-width:720px; margin:0 auto; }
-    h1 { font-size:1.5rem; margin-bottom:0.35rem; }
-    .sub { color:var(--muted); font-size:0.9rem; margin-bottom:1.25rem; }
-    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.25rem; margin-bottom:1rem; }
-    label { display:block; font-size:0.85rem; color:var(--muted); margin-bottom:0.4rem; }
-    input, select { width:100%; padding:0.6rem 0.75rem; border-radius:8px; border:1px solid var(--border); background:#12151b; color:var(--text); margin-bottom:0.85rem; }
-    button, .btn { padding:0.6rem 1rem; border:none; border-radius:8px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; font-size:0.9rem; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:1.5rem 1rem 3rem; }
+    .wrap { max-width:860px; margin:0 auto; }
+    h1 { font-size:1.35rem; font-weight:650; letter-spacing:-0.02em; }
+    .sub { color:var(--muted); font-size:0.85rem; margin-top:0.2rem; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.15rem 1.25rem; margin-bottom:1rem; }
+    label { display:block; font-size:0.8rem; color:var(--muted); margin-bottom:0.35rem; }
+    input, select { width:100%; padding:0.55rem 0.7rem; border-radius:9px; border:1px solid var(--border); background:var(--input); color:var(--text); margin-bottom:0.75rem; font-size:0.9rem; outline:none; }
+    input:focus, select:focus { border-color:var(--accent); }
+    button, .btn { padding:0.55rem 0.95rem; border:none; border-radius:9px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; font-size:0.875rem; transition:filter .15s; }
+    button:hover:not(:disabled) { filter:brightness(1.08); }
     button:disabled { opacity:0.5; cursor:not-allowed; }
-    button.danger, .btn.danger { background:var(--danger); }
-    button.ghost, .btn.ghost { background:transparent; border:1px solid var(--border); color:var(--muted); }
+    button.danger { background:var(--danger); }
+    button.ghost { background:transparent; border:1px solid var(--border); color:var(--muted); }
+    button.ghost:hover { color:var(--text); border-color:#3a4150; }
     .row { display:flex; gap:0.75rem; flex-wrap:wrap; }
-    .row > div { flex:1; min-width:120px; }
-    .tabs { display:flex; gap:0.5rem; margin-bottom:1rem; }
-    .tabs button { flex:0; background:transparent; border:1px solid var(--border); color:var(--muted); }
-    .tabs button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
-    .result { margin-top:1rem; padding:0.85rem; background:#12151b; border-radius:8px; border:1px solid var(--border); display:none; word-break:break-all; font-size:0.9rem; }
+    .row > div { flex:1; min-width:130px; }
+    .tabs { display:flex; gap:0.4rem; margin-bottom:0.9rem; background:var(--card); border:1px solid var(--border); border-radius:11px; padding:0.3rem; }
+    .tabs button { flex:1; background:transparent; border:none; color:var(--muted); padding:0.5rem; border-radius:8px; font-weight:500; }
+    .tabs button.active { background:var(--accent); color:#fff; }
+    .result { margin-top:0.9rem; padding:0.8rem; background:var(--input); border-radius:9px; border:1px solid var(--border); display:none; word-break:break-all; font-size:0.875rem; }
     .result.show { display:block; }
     .result a { color:var(--accent); }
-    .progress { height:4px; background:var(--border); border-radius:2px; margin-top:0.75rem; overflow:hidden; display:none; }
-    .progress > div { height:100%; background:var(--accent); width:0%; }
+    .progress { height:3px; background:var(--border); border-radius:2px; margin-top:0.7rem; overflow:hidden; display:none; }
+    .progress > div { height:100%; background:var(--accent); width:0%; transition:width .15s; }
     .err { color:var(--err); } .ok { color:var(--ok); }
-    .login { max-width:360px; margin:2rem auto; }
-    table { width:100%; border-collapse:collapse; font-size:0.85rem; }
-    th, td { text-align:left; padding:0.55rem 0.4rem; border-bottom:1px solid var(--border); vertical-align:middle; }
-    th { color:var(--muted); font-weight:500; }
-    td a { color:var(--accent); }
-    .actions { display:flex; gap:0.35rem; flex-wrap:wrap; }
-    .actions button { padding:0.3rem 0.55rem; font-size:0.75rem; width:auto; }
-    .meta { color:var(--muted); font-size:0.75rem; }
-    .empty { color:var(--muted); text-align:center; padding:1.5rem; }
-    .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem; }
+    .login { max-width:340px; margin:3rem auto; }
+    .login h1 { margin-bottom:0.15rem; }
+    .login .sub { margin-bottom:1.1rem; }
+    table { width:100%; border-collapse:collapse; font-size:0.84rem; }
+    th, td { text-align:left; padding:0.65rem 0.45rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+    th { color:var(--muted); font-weight:500; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.03em; }
+    .actions { display:flex; gap:0.3rem; flex-wrap:wrap; }
+    .actions button { padding:0.28rem 0.5rem; font-size:0.72rem; width:auto; }
+    .meta { color:var(--muted); font-size:0.72rem; }
+    .empty { color:var(--muted); text-align:center; padding:2rem 1rem; font-size:0.9rem; }
+    .topbar { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; flex-wrap:wrap; gap:0.6rem; }
     .topbar a { color:var(--muted); font-size:0.85rem; text-decoration:none; }
+    .topbar a:hover { color:var(--text); }
+    .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; z-index:50; padding:1rem; }
+    .modal-bg.show { display:flex; }
+    .modal { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.25rem; width:100%; max-width:380px; }
+    .modal h3 { font-size:1.05rem; margin-bottom:0.9rem; }
+    .modal .actions { margin-top:0.5rem; justify-content:flex-end; gap:0.5rem; }
+    .modal .actions button { padding:0.45rem 0.9rem; font-size:0.85rem; }
+    .fname { font-weight:500; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    @media (max-width:600px) {
+      .fname { max-width:120px; }
+      th:nth-child(2), td:nth-child(2) { display:none; }
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div id="loginBox" class="card login">
       <h1>管理后台</h1>
-      <p class="sub">登录后可上传与管理文件</p>
-      <label>管理员密码</label>
-      <input type="password" id="pwd" />
-      <button id="loginBtn" style="width:100%">登录</button>
+      <p class="sub">登录后管理文件</p>
+      <form id="loginForm">
+        <label>管理员密码</label>
+        <input type="password" id="pwd" autocomplete="current-password" autofocus />
+        <button type="submit" id="loginBtn" style="width:100%">登录</button>
+      </form>
     </div>
 
     <div id="mainBox" style="display:none">
       <div class="topbar">
         <div>
           <h1>管理后台</h1>
-          <p class="sub" style="margin:0">无有效期 / 次数限制</p>
+          <p class="sub">文件管理 · 上传</p>
         </div>
         <div style="display:flex;gap:0.5rem;align-items:center">
           <a href="/">← 前台</a>
-          <button class="ghost" id="logoutBtn" style="width:auto;padding:0.35rem 0.7rem;font-size:0.8rem">退出</button>
+          <button type="button" class="ghost" id="logoutBtn" style="width:auto;padding:0.32rem 0.65rem;font-size:0.78rem">退出</button>
         </div>
       </div>
 
       <div class="tabs">
-        <button type="button" class="active" data-tab="upload">上传</button>
-        <button type="button" data-tab="list">文件列表</button>
+        <button type="button" class="active" data-tab="list">文件管理</button>
+        <button type="button" data-tab="upload">上传</button>
       </div>
 
-      <div id="tab-upload" class="card">
+      <div id="tab-list" class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.7rem">
+          <span class="meta" id="listCount">加载中…</span>
+          <button type="button" class="ghost" id="refreshBtn" style="width:auto;padding:0.3rem 0.65rem;font-size:0.78rem">刷新</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>文件</th>
+                <th>大小</th>
+                <th>下载</th>
+                <th>过期</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="listBody"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="listEmpty" style="display:none">暂无文件</div>
+      </div>
+
+      <div id="tab-upload" class="card" style="display:none">
         <form id="form">
           <label>选择文件</label>
           <input type="file" id="file" required />
@@ -227,83 +267,93 @@ const HTML_ADMIN = `<!DOCTYPE html>
               <input type="number" id="maxdl" min="0" value="0" />
             </div>
           </div>
-          <button type="submit" id="btn">上传</button>
+          <button type="submit" id="btn" style="width:100%">上传</button>
           <div class="progress" id="prog"><div id="bar"></div></div>
         </form>
         <div class="result" id="result"></div>
       </div>
-
-      <div id="tab-list" class="card" style="display:none">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
-          <span class="meta" id="listCount">加载中…</span>
-          <button type="button" class="ghost" id="refreshBtn" style="width:auto;padding:0.35rem 0.7rem;font-size:0.8rem">刷新</button>
-        </div>
-        <div style="overflow-x:auto">
-          <table>
-            <thead>
-              <tr>
-                <th>文件名</th>
-                <th>大小</th>
-                <th>下载</th>
-                <th>过期</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody id="listBody"></tbody>
-          </table>
-        </div>
-        <div class="empty" id="listEmpty" style="display:none">暂无文件</div>
-      </div>
     </div>
   </div>
+
+  <div class="modal-bg" id="editModal">
+    <div class="modal">
+      <h3>编辑文件</h3>
+      <p class="meta" id="editName" style="margin-bottom:0.85rem"></p>
+      <form id="editForm">
+        <input type="hidden" id="editId" />
+        <label>剩余有效天数（0=永不过期）</label>
+        <input type="number" id="editDays" min="0" value="0" />
+        <label>最大下载次数（0=无限）</label>
+        <input type="number" id="editMax" min="0" value="0" />
+        <label>已下载次数（可重置）</label>
+        <input type="number" id="editDl" min="0" value="0" />
+        <div class="actions">
+          <button type="button" class="ghost" id="editCancel">取消</button>
+          <button type="submit">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     let token = sessionStorage.getItem('admin_token') || '';
     const loginBox = document.getElementById('loginBox');
     const mainBox = document.getElementById('mainBox');
+    const editModal = document.getElementById('editModal');
 
     function showMain() {
       loginBox.style.display = 'none';
       mainBox.style.display = 'block';
+      switchTab('list');
       loadList();
     }
     if (token) showMain();
 
-    document.getElementById('loginBtn').onclick = async () => {
+    async function doLogin() {
       const pwd = document.getElementById('pwd').value;
+      if (!pwd) return;
       const r = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ password: pwd }) });
       const d = await r.json();
       if (!r.ok) { alert(d.error || '登录失败'); return; }
       token = d.token;
       sessionStorage.setItem('admin_token', token);
       showMain();
-    };
+    }
+    document.getElementById('loginForm').addEventListener('submit', (e) => { e.preventDefault(); doLogin(); });
 
     document.getElementById('logoutBtn').onclick = () => {
       token = '';
       sessionStorage.removeItem('admin_token');
       mainBox.style.display = 'none';
       loginBox.style.display = 'block';
+      document.getElementById('pwd').focus();
     };
 
+    function switchTab(name) {
+      document.querySelectorAll('.tabs button').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === name);
+      });
+      document.getElementById('tab-list').style.display = name === 'list' ? 'block' : 'none';
+      document.getElementById('tab-upload').style.display = name === 'upload' ? 'block' : 'none';
+      if (name === 'list') loadList();
+    }
     document.querySelectorAll('.tabs button').forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('tab-upload').style.display = btn.dataset.tab === 'upload' ? 'block' : 'none';
-        document.getElementById('tab-list').style.display = btn.dataset.tab === 'list' ? 'block' : 'none';
-        if (btn.dataset.tab === 'list') loadList();
-      };
+      btn.onclick = () => switchTab(btn.dataset.tab);
     });
 
     function fmtSize(n) {
       if (n < 1024) return n + ' B';
       if (n < 1048576) return (n/1024).toFixed(1) + ' KB';
-      return (n/1048576).toFixed(1) + ' MB';
+      return (n/1048576).toFixed(2) + ' MB';
     }
     function fmtTime(iso) {
       if (!iso) return '永不';
       const d = new Date(iso);
+      if (d.getTime() < Date.now()) return '已过期';
       return d.toLocaleString('zh-CN', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+    }
+    function escapeHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
     async function loadList() {
@@ -322,28 +372,64 @@ const HTML_ADMIN = `<!DOCTYPE html>
         if (!files.length) { empty.style.display = 'block'; return; }
         files.forEach(f => {
           const tr = document.createElement('tr');
-          const rem = f.maxDownloads === 0 ? '无限' : (f.downloads + '/' + f.maxDownloads);
-          tr.innerHTML = '<td><div>' + escapeHtml(f.filename) + '</div><div class="meta">' + f.id + '</div></td>' +
+          const rem = f.maxDownloads === 0 ? (f.downloads + '/∞') : (f.downloads + '/' + f.maxDownloads);
+          tr.innerHTML =
+            '<td><div class="fname" title="' + escapeHtml(f.filename) + '">' + escapeHtml(f.filename) + '</div><div class="meta">' + f.id + '</div></td>' +
             '<td>' + fmtSize(f.size) + '</td>' +
             '<td>' + rem + '</td>' +
             '<td class="meta">' + fmtTime(f.expiresAt) + '</td>' +
             '<td class="actions">' +
+            '<button type="button" class="ghost" data-edit>编辑</button>' +
             '<button type="button" class="ghost" data-copy="' + f.url + '">复制</button>' +
-            '<a href="' + f.url + '" target="_blank"><button type="button" class="ghost">打开</button></a>' +
             '<button type="button" class="danger" data-del="' + f.id + '">删除</button>' +
             '</td>';
+          tr.querySelector('[data-edit]').onclick = () => openEdit(f);
+          tr.querySelector('[data-copy]').onclick = () => navigator.clipboard.writeText(f.url);
+          tr.querySelector('[data-del]').onclick = () => delFile(f.id);
           body.appendChild(tr);
         });
-        body.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => navigator.clipboard.writeText(b.dataset.copy));
-        body.querySelectorAll('[data-del]').forEach(b => b.onclick = () => delFile(b.dataset.del));
       } catch (e) {
         count.textContent = e.message || '加载失败';
       }
     }
 
-    function escapeHtml(s) {
-      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    function openEdit(f) {
+      document.getElementById('editId').value = f.id;
+      document.getElementById('editName').textContent = f.filename + ' · ' + f.id;
+      let daysLeft = 0;
+      if (f.expiresAt) {
+        const ms = new Date(f.expiresAt).getTime() - Date.now();
+        daysLeft = Math.max(0, Math.ceil(ms / 86400000));
+      }
+      document.getElementById('editDays').value = f.expiresAt ? daysLeft : 0;
+      document.getElementById('editMax').value = f.maxDownloads;
+      document.getElementById('editDl').value = f.downloads || 0;
+      editModal.classList.add('show');
+      document.getElementById('editDays').focus();
     }
+
+    document.getElementById('editCancel').onclick = () => editModal.classList.remove('show');
+    editModal.addEventListener('click', (e) => { if (e.target === editModal) editModal.classList.remove('show'); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && editModal.classList.contains('show')) editModal.classList.remove('show');
+    });
+
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editId').value;
+      const days = parseInt(document.getElementById('editDays').value, 10);
+      const maxDownloads = parseInt(document.getElementById('editMax').value, 10);
+      const downloads = parseInt(document.getElementById('editDl').value, 10);
+      const r = await fetch('/api/admin/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ id, days: isNaN(days) ? 0 : days, maxDownloads: isNaN(maxDownloads) ? 0 : maxDownloads, downloads: isNaN(downloads) ? 0 : downloads })
+      });
+      const d = await r.json();
+      if (!r.ok) { alert(d.error || '保存失败'); return; }
+      editModal.classList.remove('show');
+      loadList();
+    });
 
     async function delFile(id) {
       if (!confirm('确定删除此文件？')) return;
@@ -467,6 +553,9 @@ export default {
     if (path === '/api/admin/delete' && request.method === 'POST') {
       return handleAdminDelete(request, env);
     }
+    if (path === '/api/admin/update' && request.method === 'POST') {
+      return handleAdminUpdate(request, env);
+    }
     if (path === '/api/info' && request.method === 'GET') {
       const id = url.searchParams.get('id');
       if (!id) return json({ error: 'missing id' }, 400);
@@ -575,6 +664,44 @@ async function handleAdminDelete(request, env) {
     return json({ ok: true });
   } catch (err) {
     return json({ error: err.message || '删除失败' }, 500);
+  }
+}
+
+async function handleAdminUpdate(request, env) {
+  if (!(await verifyAdmin(request, env))) {
+    return json({ error: '未授权' }, 401);
+  }
+  try {
+    const body = await request.json();
+    const { id } = body;
+    if (!id || !/^[a-zA-Z0-9]+$/.test(id)) {
+      return json({ error: '无效 id' }, 400);
+    }
+    const meta = await env.META.get(`file:${id}`, 'json');
+    if (!meta) return json({ error: '文件不存在' }, 404);
+
+    let days = parseInt(body.days, 10);
+    let maxDownloads = parseInt(body.maxDownloads, 10);
+    let downloads = parseInt(body.downloads, 10);
+    if (isNaN(days) || days < 0) days = 0;
+    if (isNaN(maxDownloads) || maxDownloads < 0) maxDownloads = 0;
+    if (isNaN(downloads) || downloads < 0) downloads = 0;
+
+    if (days > 0) {
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      meta.expiresAt = d.toISOString();
+    } else {
+      meta.expiresAt = null;
+    }
+    meta.maxDownloads = maxDownloads;
+    meta.downloads = downloads;
+
+    const ttl = days > 0 ? days * 86400 + 3600 : undefined;
+    await env.META.put(`file:${id}`, JSON.stringify(meta), { expirationTtl: ttl });
+    return json({ ok: true, meta });
+  } catch (err) {
+    return json({ error: err.message || '更新失败' }, 500);
   }
 }
 
