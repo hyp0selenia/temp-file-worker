@@ -34,6 +34,9 @@ const HTML_PUBLIC = `<!DOCTYPE html>
     .hint { font-size:0.8rem; color:var(--muted); margin-top:0.5rem; }
     .err { color:var(--err); }
     .ok { color:var(--ok); }
+    .admin-link { margin-top:1.5rem; }
+    .admin-link a { display:inline-block; padding:0.5rem 1rem; border:1px solid var(--border); border-radius:8px; color:var(--muted); text-decoration:none; font-size:0.85rem; }
+    .admin-link a:hover { color:var(--text); border-color:var(--accent); }
   </style>
 </head>
 <body>
@@ -71,6 +74,7 @@ const HTML_PUBLIC = `<!DOCTYPE html>
     </form>
     <div class="result" id="result"></div>
   </div>
+  <div class="admin-link"><a href="/admin">管理后台</a></div>
   <script>
     (function(){
       const _m = {a1:1,b2:2,c3:3,d5:5,e7:7,f1:1,g5:5,h10:10,i20:20,j50:50,k100:100};
@@ -143,60 +147,126 @@ const HTML_ADMIN = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>管理上传 - 临时文件分享</title>
+  <title>管理后台</title>
   <style>
-    :root { --bg:#0f1115; --card:#1a1d24; --text:#e8eaed; --muted:#9aa0a6; --accent:#4f8cff; --border:#2a2f3a; --ok:#3dd68c; --err:#ff6b6b; }
+    :root { --bg:#0f1115; --card:#1a1d24; --text:#e8eaed; --muted:#9aa0a6; --accent:#4f8cff; --border:#2a2f3a; --ok:#3dd68c; --err:#ff6b6b; --danger:#e74c3c; }
     * { box-sizing: border-box; margin:0; padding:0; }
-    body { font-family: system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:2rem 1rem; }
-    h1 { font-size:1.5rem; margin-bottom:0.5rem; }
-    .sub { color:var(--muted); font-size:0.9rem; margin-bottom:2rem; }
-    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.5rem; width:100%; max-width:480px; }
+    body { font-family: system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:2rem 1rem; }
+    .wrap { max-width:720px; margin:0 auto; }
+    h1 { font-size:1.5rem; margin-bottom:0.35rem; }
+    .sub { color:var(--muted); font-size:0.9rem; margin-bottom:1.25rem; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.25rem; margin-bottom:1rem; }
     label { display:block; font-size:0.85rem; color:var(--muted); margin-bottom:0.4rem; }
-    input, select { width:100%; padding:0.6rem 0.75rem; border-radius:8px; border:1px solid var(--border); background:#12151b; color:var(--text); margin-bottom:1rem; }
-    button { width:100%; padding:0.75rem; border:none; border-radius:8px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; font-size:1rem; }
+    input, select { width:100%; padding:0.6rem 0.75rem; border-radius:8px; border:1px solid var(--border); background:#12151b; color:var(--text); margin-bottom:0.85rem; }
+    button, .btn { padding:0.6rem 1rem; border:none; border-radius:8px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; font-size:0.9rem; }
     button:disabled { opacity:0.5; cursor:not-allowed; }
-    .result { margin-top:1.25rem; padding:1rem; background:#12151b; border-radius:8px; border:1px solid var(--border); display:none; word-break:break-all; }
+    button.danger, .btn.danger { background:var(--danger); }
+    button.ghost, .btn.ghost { background:transparent; border:1px solid var(--border); color:var(--muted); }
+    .row { display:flex; gap:0.75rem; flex-wrap:wrap; }
+    .row > div { flex:1; min-width:120px; }
+    .tabs { display:flex; gap:0.5rem; margin-bottom:1rem; }
+    .tabs button { flex:0; background:transparent; border:1px solid var(--border); color:var(--muted); }
+    .tabs button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+    .result { margin-top:1rem; padding:0.85rem; background:#12151b; border-radius:8px; border:1px solid var(--border); display:none; word-break:break-all; font-size:0.9rem; }
     .result.show { display:block; }
     .result a { color:var(--accent); }
     .progress { height:4px; background:var(--border); border-radius:2px; margin-top:0.75rem; overflow:hidden; display:none; }
     .progress > div { height:100%; background:var(--accent); width:0%; }
-    .hint { font-size:0.8rem; color:var(--muted); margin-top:0.5rem; }
     .err { color:var(--err); } .ok { color:var(--ok); }
-    .login { max-width:360px; }
+    .login { max-width:360px; margin:2rem auto; }
+    table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+    th, td { text-align:left; padding:0.55rem 0.4rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+    th { color:var(--muted); font-weight:500; }
+    td a { color:var(--accent); }
+    .actions { display:flex; gap:0.35rem; flex-wrap:wrap; }
+    .actions button { padding:0.3rem 0.55rem; font-size:0.75rem; width:auto; }
+    .meta { color:var(--muted); font-size:0.75rem; }
+    .empty { color:var(--muted); text-align:center; padding:1.5rem; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem; }
+    .topbar a { color:var(--muted); font-size:0.85rem; text-decoration:none; }
   </style>
 </head>
 <body>
-  <h1>管理上传</h1>
-  <p class="sub">无有效期 / 次数限制</p>
-  <div class="card login" id="loginBox">
-    <label>管理员密码</label>
-    <input type="password" id="pwd" />
-    <button id="loginBtn">登录</button>
-  </div>
-  <div class="card" id="uploadBox" style="display:none">
-    <form id="form">
-      <label>选择文件</label>
-      <input type="file" id="file" required />
-      <div class="row" style="display:flex;gap:0.75rem">
-        <div style="flex:1">
-          <label>有效期（天，0=永不过期）</label>
-          <input type="number" id="days" min="0" value="30" />
+  <div class="wrap">
+    <div id="loginBox" class="card login">
+      <h1>管理后台</h1>
+      <p class="sub">登录后可上传与管理文件</p>
+      <label>管理员密码</label>
+      <input type="password" id="pwd" />
+      <button id="loginBtn" style="width:100%">登录</button>
+    </div>
+
+    <div id="mainBox" style="display:none">
+      <div class="topbar">
+        <div>
+          <h1>管理后台</h1>
+          <p class="sub" style="margin:0">无有效期 / 次数限制</p>
         </div>
-        <div style="flex:1">
-          <label>最大下载次数（0=无限）</label>
-          <input type="number" id="maxdl" min="0" value="0" />
+        <div style="display:flex;gap:0.5rem;align-items:center">
+          <a href="/">← 前台</a>
+          <button class="ghost" id="logoutBtn" style="width:auto;padding:0.35rem 0.7rem;font-size:0.8rem">退出</button>
         </div>
       </div>
-      <button type="submit" id="btn">上传</button>
-      <div class="progress" id="prog"><div id="bar"></div></div>
-    </form>
-    <div class="result" id="result"></div>
+
+      <div class="tabs">
+        <button type="button" class="active" data-tab="upload">上传</button>
+        <button type="button" data-tab="list">文件列表</button>
+      </div>
+
+      <div id="tab-upload" class="card">
+        <form id="form">
+          <label>选择文件</label>
+          <input type="file" id="file" required />
+          <div class="row">
+            <div>
+              <label>有效期（天，0=永不过期）</label>
+              <input type="number" id="days" min="0" value="30" />
+            </div>
+            <div>
+              <label>最大下载次数（0=无限）</label>
+              <input type="number" id="maxdl" min="0" value="0" />
+            </div>
+          </div>
+          <button type="submit" id="btn">上传</button>
+          <div class="progress" id="prog"><div id="bar"></div></div>
+        </form>
+        <div class="result" id="result"></div>
+      </div>
+
+      <div id="tab-list" class="card" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
+          <span class="meta" id="listCount">加载中…</span>
+          <button type="button" class="ghost" id="refreshBtn" style="width:auto;padding:0.35rem 0.7rem;font-size:0.8rem">刷新</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>文件名</th>
+                <th>大小</th>
+                <th>下载</th>
+                <th>过期</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="listBody"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="listEmpty" style="display:none">暂无文件</div>
+      </div>
+    </div>
   </div>
   <script>
     let token = sessionStorage.getItem('admin_token') || '';
     const loginBox = document.getElementById('loginBox');
-    const uploadBox = document.getElementById('uploadBox');
-    if (token) { loginBox.style.display='none'; uploadBox.style.display='block'; }
+    const mainBox = document.getElementById('mainBox');
+
+    function showMain() {
+      loginBox.style.display = 'none';
+      mainBox.style.display = 'block';
+      loadList();
+    }
+    if (token) showMain();
 
     document.getElementById('loginBtn').onclick = async () => {
       const pwd = document.getElementById('pwd').value;
@@ -205,9 +275,89 @@ const HTML_ADMIN = `<!DOCTYPE html>
       if (!r.ok) { alert(d.error || '登录失败'); return; }
       token = d.token;
       sessionStorage.setItem('admin_token', token);
-      loginBox.style.display='none';
-      uploadBox.style.display='block';
+      showMain();
     };
+
+    document.getElementById('logoutBtn').onclick = () => {
+      token = '';
+      sessionStorage.removeItem('admin_token');
+      mainBox.style.display = 'none';
+      loginBox.style.display = 'block';
+    };
+
+    document.querySelectorAll('.tabs button').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-upload').style.display = btn.dataset.tab === 'upload' ? 'block' : 'none';
+        document.getElementById('tab-list').style.display = btn.dataset.tab === 'list' ? 'block' : 'none';
+        if (btn.dataset.tab === 'list') loadList();
+      };
+    });
+
+    function fmtSize(n) {
+      if (n < 1024) return n + ' B';
+      if (n < 1048576) return (n/1024).toFixed(1) + ' KB';
+      return (n/1048576).toFixed(1) + ' MB';
+    }
+    function fmtTime(iso) {
+      if (!iso) return '永不';
+      const d = new Date(iso);
+      return d.toLocaleString('zh-CN', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+    }
+
+    async function loadList() {
+      const body = document.getElementById('listBody');
+      const empty = document.getElementById('listEmpty');
+      const count = document.getElementById('listCount');
+      body.innerHTML = '';
+      empty.style.display = 'none';
+      count.textContent = '加载中…';
+      try {
+        const r = await fetch('/api/admin/list', { headers: { Authorization: 'Bearer ' + token } });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || '加载失败');
+        const files = d.files || [];
+        count.textContent = '共 ' + files.length + ' 个文件';
+        if (!files.length) { empty.style.display = 'block'; return; }
+        files.forEach(f => {
+          const tr = document.createElement('tr');
+          const rem = f.maxDownloads === 0 ? '无限' : (f.downloads + '/' + f.maxDownloads);
+          tr.innerHTML = '<td><div>' + escapeHtml(f.filename) + '</div><div class="meta">' + f.id + '</div></td>' +
+            '<td>' + fmtSize(f.size) + '</td>' +
+            '<td>' + rem + '</td>' +
+            '<td class="meta">' + fmtTime(f.expiresAt) + '</td>' +
+            '<td class="actions">' +
+            '<button type="button" class="ghost" data-copy="' + f.url + '">复制</button>' +
+            '<a href="' + f.url + '" target="_blank"><button type="button" class="ghost">打开</button></a>' +
+            '<button type="button" class="danger" data-del="' + f.id + '">删除</button>' +
+            '</td>';
+          body.appendChild(tr);
+        });
+        body.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => navigator.clipboard.writeText(b.dataset.copy));
+        body.querySelectorAll('[data-del]').forEach(b => b.onclick = () => delFile(b.dataset.del));
+      } catch (e) {
+        count.textContent = e.message || '加载失败';
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function delFile(id) {
+      if (!confirm('确定删除此文件？')) return;
+      const r = await fetch('/api/admin/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ id })
+      });
+      const d = await r.json();
+      if (!r.ok) { alert(d.error || '删除失败'); return; }
+      loadList();
+    }
+
+    document.getElementById('refreshBtn').onclick = loadList;
 
     document.getElementById('form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -241,7 +391,8 @@ const HTML_ADMIN = `<!DOCTYPE html>
         const data = JSON.parse(res.body);
         if (res.status !== 200) throw new Error(data.error || '失败');
         result.className = 'result show ok';
-        result.innerHTML = \`成功<br><a href="\${data.url}" target="_blank">\${data.url}</a><br>过期: \${data.expiresAt || '永不'} · 次数: \${data.maxDownloads || '无限'}\`;
+        result.innerHTML = '成功<br><a href="' + data.url + '" target="_blank">' + data.url + '</a><br>过期: ' + (data.expiresAt || '永不') + ' · 次数: ' + (data.maxDownloads || '无限');
+        document.getElementById('file').value = '';
       } catch (err) {
         result.className = 'result show err';
         result.textContent = err.message;
@@ -310,6 +461,12 @@ export default {
     if (path === '/api/admin/login' && request.method === 'POST') {
       return handleAdminLogin(request, env);
     }
+    if (path === '/api/admin/list' && request.method === 'GET') {
+      return handleAdminList(request, env);
+    }
+    if (path === '/api/admin/delete' && request.method === 'POST') {
+      return handleAdminDelete(request, env);
+    }
     if (path === '/api/info' && request.method === 'GET') {
       const id = url.searchParams.get('id');
       if (!id) return json({ error: 'missing id' }, 400);
@@ -369,6 +526,56 @@ async function verifyAdmin(request, env) {
   // also accept previous day for timezone edge
   const validPrev = await hashPassword(expected + ':' + (day - 1));
   return token === valid || token === validPrev;
+}
+
+async function handleAdminList(request, env) {
+  if (!(await verifyAdmin(request, env))) {
+    return json({ error: '未授权' }, 401);
+  }
+  try {
+    const list = await env.META.list({ prefix: 'file:' });
+    const origin = new URL(request.url).origin;
+    const files = [];
+    for (const key of list.keys) {
+      const meta = await env.META.get(key.name, 'json');
+      if (!meta) continue;
+      // skip expired
+      if (meta.expiresAt && new Date(meta.expiresAt).getTime() < Date.now()) continue;
+      files.push({
+        id: meta.id,
+        filename: meta.filename,
+        size: meta.size,
+        createdAt: meta.createdAt,
+        expiresAt: meta.expiresAt,
+        maxDownloads: meta.maxDownloads,
+        downloads: meta.downloads || 0,
+        isAdmin: !!meta.isAdmin,
+        url: `${origin}/d/${meta.id}`,
+      });
+    }
+    // newest first
+    files.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+    return json({ files });
+  } catch (err) {
+    return json({ error: err.message || '列表失败' }, 500);
+  }
+}
+
+async function handleAdminDelete(request, env) {
+  if (!(await verifyAdmin(request, env))) {
+    return json({ error: '未授权' }, 401);
+  }
+  try {
+    const { id } = await request.json();
+    if (!id || !/^[a-zA-Z0-9]+$/.test(id)) {
+      return json({ error: '无效 id' }, 400);
+    }
+    await env.BUCKET.delete(`files/${id}`);
+    await env.META.delete(`file:${id}`);
+    return json({ ok: true });
+  } catch (err) {
+    return json({ error: err.message || '删除失败' }, 500);
+  }
 }
 
 async function handleUpload(request, env) {
