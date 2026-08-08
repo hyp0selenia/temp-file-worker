@@ -19,7 +19,7 @@ const HTML_PUBLIC = `<!DOCTYPE html>
     .sub { color:var(--muted); font-size:0.9rem; margin-bottom:2rem; }
     .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.5rem; width:100%; max-width:480px; }
     label { display:block; font-size:0.85rem; color:var(--muted); margin-bottom:0.4rem; }
-    input[type=file], input[type=number], select { width:100%; padding:0.6rem 0.75rem; border-radius:8px; border:1px solid var(--border); background:#12151b; color:var(--text); margin-bottom:1rem; }
+    input[type=file], select { width:100%; padding:0.6rem 0.75rem; border-radius:8px; border:1px solid var(--border); background:#12151b; color:var(--text); margin-bottom:1rem; }
     input[type=file] { padding:0.5rem; }
     .row { display:flex; gap:0.75rem; }
     .row > div { flex:1; }
@@ -34,8 +34,6 @@ const HTML_PUBLIC = `<!DOCTYPE html>
     .hint { font-size:0.8rem; color:var(--muted); margin-top:0.5rem; }
     .err { color:var(--err); }
     .ok { color:var(--ok); }
-    footer { margin-top:2rem; font-size:0.75rem; color:var(--muted); }
-    footer a { color:var(--muted); }
   </style>
 </head>
 <body>
@@ -47,77 +45,95 @@ const HTML_PUBLIC = `<!DOCTYPE html>
       <input type="file" id="file" required />
       <div class="row">
         <div>
-          <label>有效期（天）</label>
-          <input type="number" id="days" min="1" max="7" value="1" />
+          <label>有效期</label>
+          <select id="x7k2m9p">
+            <option value="a1">1 天</option>
+            <option value="b2">2 天</option>
+            <option value="c3">3 天</option>
+            <option value="d5">5 天</option>
+            <option value="e7" selected>7 天</option>
+          </select>
         </div>
         <div>
           <label>最大下载次数</label>
-          <input type="number" id="maxdl" min="1" max="100" value="10" />
+          <select id="q4w8n3r">
+            <option value="f1">1 次</option>
+            <option value="g5">5 次</option>
+            <option value="h10" selected>10 次</option>
+            <option value="i20">20 次</option>
+            <option value="j50">50 次</option>
+            <option value="k100">100 次</option>
+          </select>
         </div>
       </div>
       <button type="submit" id="btn">上传并生成链接</button>
       <div class="progress" id="prog"><div id="bar"></div></div>
-      <p class="hint">上传后获得一次性分享链接，过期或次数用尽后自动失效。</p>
     </form>
     <div class="result" id="result"></div>
   </div>
-  <footer>开源 · <a href="/admin">管理入口</a></footer>
   <script>
-    const form = document.getElementById('form');
-    const fileInput = document.getElementById('file');
-    const daysInput = document.getElementById('days');
-    const maxdlInput = document.getElementById('maxdl');
-    const btn = document.getElementById('btn');
-    const result = document.getElementById('result');
-    const prog = document.getElementById('prog');
-    const bar = document.getElementById('bar');
+    (function(){
+      const _m = {a1:1,b2:2,c3:3,d5:5,e7:7,f1:1,g5:5,h10:10,i20:20,j50:50,k100:100};
+      const _k1 = 'x7k2m9p', _k2 = 'q4w8n3r';
+      const _enc = (n) => btoa(String(n * 17 + 93)).replace(/=+$/,'');
+      const form = document.getElementById('form');
+      const fileInput = document.getElementById('file');
+      const btn = document.getElementById('btn');
+      const result = document.getElementById('result');
+      const prog = document.getElementById('prog');
+      const bar = document.getElementById('bar');
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const file = fileInput.files[0];
-      if (!file) return;
-      if (file.size > 104857600) {
-        result.className = 'result show err';
-        result.textContent = '文件超过 100MB 限制';
-        return;
-      }
-      const days = Math.min(7, Math.max(1, parseInt(daysInput.value) || 1));
-      const maxdl = Math.min(100, Math.max(1, parseInt(maxdlInput.value) || 10));
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const file = fileInput.files[0];
+        if (!file) return;
+        if (file.size > 104857600) {
+          result.className = 'result show err';
+          result.textContent = '文件超过 100MB 限制';
+          return;
+        }
+        const v1 = document.getElementById(_k1).value;
+        const v2 = document.getElementById(_k2).value;
+        const days = _m[v1] || 1;
+        const maxdl = _m[v2] || 10;
 
-      btn.disabled = true;
-      prog.style.display = 'block';
-      bar.style.width = '0%';
-      result.className = 'result';
-      result.innerHTML = '';
+        btn.disabled = true;
+        prog.style.display = 'block';
+        bar.style.width = '0%';
+        result.className = 'result';
+        result.innerHTML = '';
 
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('days', days);
-      fd.append('maxDownloads', maxdl);
+        const fd = new FormData();
+        fd.append('file', file);
+        // 混淆字段名 + 编码值，服务端只认这些，忽略明文 days/maxDownloads
+        fd.append('z9f3k7x', _enc(days));
+        fd.append('p2m8q5w', _enc(maxdl));
+        fd.append('t6h1v4', Date.now().toString(36));
 
-      try {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/api/upload');
-        xhr.upload.onprogress = (ev) => {
-          if (ev.lengthComputable) bar.style.width = Math.round(ev.loaded / ev.total * 100) + '%';
-        };
-        const res = await new Promise((resolve, reject) => {
-          xhr.onload = () => resolve({ status: xhr.status, body: xhr.responseText });
-          xhr.onerror = () => reject(new Error('网络错误'));
-          xhr.send(fd);
-        });
-        const data = JSON.parse(res.body);
-        if (res.status !== 200) throw new Error(data.error || '上传失败');
-        result.className = 'result show ok';
-        result.innerHTML = \`链接已生成（\${data.expiresAt} 前有效，最多 \${data.maxDownloads} 次）<br><a href="\${data.url}" target="_blank">\${data.url}</a><br><button type="button" style="margin-top:0.75rem;width:auto;padding:0.4rem 0.8rem" onclick="navigator.clipboard.writeText('\${data.url}')">复制链接</button>\`;
-      } catch (err) {
-        result.className = 'result show err';
-        result.textContent = err.message || '上传失败';
-      } finally {
-        btn.disabled = false;
-        setTimeout(() => { prog.style.display = 'none'; }, 500);
-      }
-    });
+        try {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', '/api/upload');
+          xhr.upload.onprogress = (ev) => {
+            if (ev.lengthComputable) bar.style.width = Math.round(ev.loaded / ev.total * 100) + '%';
+          };
+          const res = await new Promise((resolve, reject) => {
+            xhr.onload = () => resolve({ status: xhr.status, body: xhr.responseText });
+            xhr.onerror = () => reject(new Error('网络错误'));
+            xhr.send(fd);
+          });
+          const data = JSON.parse(res.body);
+          if (res.status !== 200) throw new Error(data.error || '上传失败');
+          result.className = 'result show ok';
+          result.innerHTML = \`链接已生成（\${data.expiresAt} 前有效，最多 \${data.maxDownloads} 次）<br><a href="\${data.url}" target="_blank">\${data.url}</a><br><button type="button" style="margin-top:0.75rem;width:auto;padding:0.4rem 0.8rem" onclick="navigator.clipboard.writeText('\${data.url}')">复制链接</button>\`;
+        } catch (err) {
+          result.className = 'result show err';
+          result.textContent = err.message || '上传失败';
+        } finally {
+          btn.disabled = false;
+          setTimeout(() => { prog.style.display = 'none'; }, 500);
+        }
+      });
+    })();
   </script>
 </body>
 </html>`;
@@ -151,12 +167,11 @@ const HTML_ADMIN = `<!DOCTYPE html>
 </head>
 <body>
   <h1>管理上传</h1>
-  <p class="sub">无有效期 / 次数限制（仍受 CF Free 100MB 上传限制）</p>
+  <p class="sub">无有效期 / 次数限制</p>
   <div class="card login" id="loginBox">
     <label>管理员密码</label>
-    <input type="password" id="pwd" placeholder="ADMIN_PASSWORD" />
+    <input type="password" id="pwd" />
     <button id="loginBtn">登录</button>
-    <p class="hint">密码通过 wrangler secret put ADMIN_PASSWORD 设置</p>
   </div>
   <div class="card" id="uploadBox" style="display:none">
     <form id="form">
@@ -377,18 +392,43 @@ async function handleUpload(request, env) {
       return json({ error: `文件过大，最大 ${Math.floor(maxSize / 1048576)}MB` }, 413);
     }
 
-    let days = parseInt(form.get('days') || '1', 10);
-    let maxDownloads = parseInt(form.get('maxDownloads') || '10', 10);
+    // 解码混淆参数：z9f3k7x = days, p2m8q5w = maxDownloads
+    // 编码规则: btoa(String(n * 17 + 93)) 去尾部 =
+    function decObf(s) {
+      if (!s || typeof s !== 'string') return null;
+      try {
+        const raw = atob(s);
+        const n = (parseInt(raw, 10) - 93) / 17;
+        if (!Number.isInteger(n) || n < 0) return null;
+        return n;
+      } catch {
+        return null;
+      }
+    }
 
-    if (!isAdmin) {
-      const publicMaxDays = parseInt(env.PUBLIC_MAX_DAYS || '7', 10);
-      const publicMaxDl = parseInt(env.PUBLIC_MAX_DOWNLOADS || '100', 10);
-      days = Math.min(publicMaxDays, Math.max(1, days || 1));
-      maxDownloads = Math.min(publicMaxDl, Math.max(1, maxDownloads || 1));
-    } else {
-      // admin: 0 = unlimited
+    let days, maxDownloads;
+
+    if (isAdmin) {
+      // 后台：明文 days / maxDownloads，0 = 无限制
+      days = parseInt(form.get('days') || '0', 10);
+      maxDownloads = parseInt(form.get('maxDownloads') || '0', 10);
       if (isNaN(days) || days < 0) days = 0;
       if (isNaN(maxDownloads) || maxDownloads < 0) maxDownloads = 0;
+    } else {
+      // 前台：只认混淆字段，忽略明文 days/maxDownloads，防止绕过
+      const publicMaxDays = parseInt(env.PUBLIC_MAX_DAYS || '7', 10);
+      const publicMaxDl = parseInt(env.PUBLIC_MAX_DOWNLOADS || '100', 10);
+      const allowedDays = new Set([1, 2, 3, 5, 7]);
+      const allowedDl = new Set([1, 5, 10, 20, 50, 100]);
+
+      days = decObf(form.get('z9f3k7x'));
+      maxDownloads = decObf(form.get('p2m8q5w'));
+
+      if (days === null || !allowedDays.has(days)) days = 1;
+      if (maxDownloads === null || !allowedDl.has(maxDownloads)) maxDownloads = 10;
+
+      days = Math.min(publicMaxDays, Math.max(1, days));
+      maxDownloads = Math.min(publicMaxDl, Math.max(1, maxDownloads));
     }
 
     const id = randomId(12);
