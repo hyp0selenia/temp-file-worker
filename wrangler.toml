@@ -11,7 +11,7 @@ bucket_name = "temp-share"
 # KV for metadata - create: wrangler kv namespace create META
 [[kv_namespaces]]
 binding = "META"
-id = "YOUR_KV_NAMESPACE_ID"  # replace after creating
+id = "5dc1bc094f9a4d2aba38cbdbe94090df"  # replace after creating
 
 # Optional: cron for cleanup every hour
 [triggers]
