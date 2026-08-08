@@ -1,0 +1,30 @@
+name = "cf-temp-share"
+main = "src/worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# R2 bucket binding - create bucket first: wrangler r2 bucket create temp-share
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "temp-share"
+
+# KV for metadata - create: wrangler kv namespace create META
+[[kv_namespaces]]
+binding = "META"
+id = "YOUR_KV_NAMESPACE_ID"  # replace after creating
+
+# Optional: cron for cleanup every hour
+[triggers]
+crons = ["0 * * * *"]
+
+# Secrets (set via dashboard or wrangler secret put)
+# ADMIN_PASSWORD - password for /admin
+# Optional: UPLOAD_TOKEN for extra protection on public upload
+
+[vars]
+# Max file size in bytes (CF free plan request body limit is 100MB)
+MAX_FILE_SIZE = "104857600"
+# Public max expiry days
+PUBLIC_MAX_DAYS = "7"
+# Public max download times
+PUBLIC_MAX_DOWNLOADS = "100"
