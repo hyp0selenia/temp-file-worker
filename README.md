@@ -115,18 +115,6 @@ ADMIN_PASSWORD=your-dev-password
 - `maxDownloads`：最大下载次数
 - `admin=1` + `Authorization: Bearer <token>`：管理上传
 
-## 限制说明
-
-- Cloudflare **Free** 计划 Workers 请求体最大 **100 MB**，因此单文件上传上限为 100 MB。
-- 若需要更大文件，需使用付费计划 + 分片上传（multipart），本项目为保持简单未实现分片。
-- R2 免费额度：10 GB 存储 / 月，1M Class A、10M Class B 操作，对个人临时分享足够。
-
-## 安全建议
-
-- 务必设置强 `ADMIN_PASSWORD`
-- 生产环境建议开启 Cloudflare Access 或 Turnstile 保护公开上传接口（可自行扩展）
-- 不要把含真实 Secret 的 `wrangler.toml` 或 `.dev.vars` 提交到公开仓库
-
 ## 目录结构
 
 ```
@@ -137,6 +125,5 @@ ADMIN_PASSWORD=your-dev-password
     └── worker.js      # 全部逻辑 + 内嵌 HTML
 ```
 
-## License
-
-MIT — 可自由修改与开源。
+## AI
+100% AI Generated
