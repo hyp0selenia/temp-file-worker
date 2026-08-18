@@ -17,9 +17,10 @@ id = "5dc1bc094f9a4d2aba38cbdbe94090df"  # replace after creating
 [triggers]
 crons = ["0 * * * *"]
 
+
+keep_vars = true
 # Secrets (set via dashboard or wrangler secret put)
 # ADMIN_PASSWORD - password for /admin
-# 首次设置后登录一次，密码会自动持久化到 KV，后续重建不再需要重新设置
 # Optional: UPLOAD_TOKEN for extra protection on public upload
 
 [vars]

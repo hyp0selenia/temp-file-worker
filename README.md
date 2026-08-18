@@ -64,11 +64,6 @@ npx wrangler secret put ADMIN_PASSWORD
 # 输入你的密码
 ```
 
-> **重要（解决每次重建都要重设密码）**  
-> 首次设置 Secret 后，**登录一次管理后台**即可。密码会自动持久化到 KV。  
-> 之后即使重新构建/部署导致 Secret 丢失，密码依然有效，无需再次设置。  
-> 如需修改密码：重新执行 `wrangler secret put ADMIN_PASSWORD`，然后重新登录一次即可覆盖 KV 中的值。
-
 ### 4. 部署
 
 ```bash
