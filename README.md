@@ -64,8 +64,6 @@ PUBLIC_MAX_DOWNLOADS = "100"
 3. 点击 **Add** → 选择 **Secret**
 4. 变量名填：`ADMIN_PASSWORD`，值填你的密码 → 保存
 
-> 用 Secret（加密）而不是 Plaintext，更安全。  
-> Secret 会跨重新构建保留，一般不需要每次重建都重设。  
 > 本地开发可在 `.dev.vars` 里写：`ADMIN_PASSWORD=你的密码`
 
 ### 4. 部署
