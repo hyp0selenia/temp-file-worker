@@ -17,8 +17,6 @@ id = "5dc1bc094f9a4d2aba38cbdbe94090df"  # replace after creating
 [triggers]
 crons = ["0 * * * *"]
 
-
-keep_vars = true
 # Secrets (set via dashboard or wrangler secret put)
 # ADMIN_PASSWORD - password for /admin
 # Optional: UPLOAD_TOKEN for extra protection on public upload
