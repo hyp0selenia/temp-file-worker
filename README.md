@@ -122,7 +122,7 @@ ADMIN_PASSWORD=your-dev-password
 ├── README.md
 ├── wrangler.toml
 └── src
-    └── worker.js      # 全部逻辑 + 内嵌 HTML
+    └── worker.js
 ```
 
 ## AI
