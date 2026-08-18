@@ -57,14 +57,17 @@ PUBLIC_MAX_DAYS = "7"
 PUBLIC_MAX_DOWNLOADS = "100"
 ```
 
-### 3. 设置管理员密码（Dashboard）
+### 3. 设置管理员密码
 
-1. 部署 Worker 后，打开 Cloudflare Dashboard
-2. 进入 **Workers & Pages** → 你的 Worker → **Settings** → **Variables and Secrets**
-3. 点击 **Add** → 选择 **Secret**
-4. 变量名填：`ADMIN_PASSWORD`，值填你的密码 → 保存
+```bash
+npx wrangler secret put ADMIN_PASSWORD
+# 输入你的密码
+```
 
-> 本地开发可在 `.dev.vars` 里写：`ADMIN_PASSWORD=你的密码`
+> **重要（解决每次重建都要重设密码）**  
+> 首次设置 Secret 后，**登录一次管理后台**即可。密码会自动持久化到 KV。  
+> 之后即使重新构建/部署导致 Secret 丢失，密码依然有效，无需再次设置。  
+> 如需修改密码：重新执行 `wrangler secret put ADMIN_PASSWORD`，然后重新登录一次即可覆盖 KV 中的值。
 
 ### 4. 部署
 
@@ -82,7 +85,7 @@ npx wrangler deploy
 1. 把本仓库推到 GitHub
 2. Cloudflare Dashboard → Workers & Pages → 创建 → Connect to Git
 3. 选择仓库，构建命令留空，输出目录留空（直接用 Worker）
-4. 在设置里绑定 R2、KV，并在 Variables and Secrets 中添加 Secret `ADMIN_PASSWORD`
+4. 在设置里绑定 R2、KV，并添加 Secret `ADMIN_PASSWORD`
 
 > 若使用 Pages + Worker 绑定，请按 Cloudflare 文档把 R2/KV 绑定到对应 Worker。
 
@@ -93,7 +96,7 @@ npx wrangler deploy
 npx wrangler dev
 ```
 
-本地开发时也可在 `.dev.vars` 中覆盖：
+本地开发时 `ADMIN_PASSWORD` 可在 `.dev.vars` 中设置：
 
 ```
 ADMIN_PASSWORD=your-dev-password

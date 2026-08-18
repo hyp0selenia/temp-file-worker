@@ -511,6 +511,22 @@ async function hashPassword(pw) {
   return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+/** 获取管理员密码：优先 Secret，其次 KV 持久化存储（解决每次重建都要重设密码的问题） */
+async function getAdminPassword(env) {
+  if (env.ADMIN_PASSWORD) return env.ADMIN_PASSWORD;
+  return (await env.META.get('config:admin_password')) || null;
+}
+
+/** 登录成功后把密码写入 KV，之后即使 Secret 丢失也能继续使用 */
+async function persistAdminPassword(env, password) {
+  if (!password) return;
+  try {
+    await env.META.put('config:admin_password', password);
+  } catch (e) {
+    console.error('persist admin password failed', e);
+  }
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -592,9 +608,11 @@ export default {
 async function handleAdminLogin(request, env) {
   try {
     const { password } = await request.json();
-    const expected = env.ADMIN_PASSWORD;
-    if (!expected) return json({ error: 'ADMIN_PASSWORD not configured' }, 500);
+    const expected = await getAdminPassword(env);
+    if (!expected) return json({ error: 'ADMIN_PASSWORD not configured. 请先在 Cloudflare 设置 Secret，登录一次后会自动持久化到 KV' }, 500);
     if (password !== expected) return json({ error: '密码错误' }, 401);
+    // 登录成功后写入 KV，后续重建即使 Secret 丢失也能用
+    await persistAdminPassword(env, expected);
     // simple token = hash of password + day
     const day = Math.floor(Date.now() / 86400000);
     const token = await hashPassword(expected + ':' + day);
@@ -608,7 +626,7 @@ async function verifyAdmin(request, env) {
   const auth = request.headers.get('Authorization') || '';
   if (!auth.startsWith('Bearer ')) return false;
   const token = auth.slice(7);
-  const expected = env.ADMIN_PASSWORD;
+  const expected = await getAdminPassword(env);
   if (!expected) return false;
   const day = Math.floor(Date.now() / 86400000);
   const valid = await hashPassword(expected + ':' + day);
