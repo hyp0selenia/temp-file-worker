@@ -17,9 +17,8 @@ id = "5dc1bc094f9a4d2aba38cbdbe94090df"  # replace after creating
 [triggers]
 crons = ["0 * * * *"]
 
-# Secrets (set via dashboard or wrangler secret put)
-# ADMIN_PASSWORD - password for /admin
-# Optional: UPLOAD_TOKEN for extra protection on public upload
+# ADMIN_PASSWORD 请在 Cloudflare Dashboard 设置（Settings → Variables and Secrets）
+# 推荐添加为 Secret（加密），不要写在本文件里
 
 [vars]
 # Max file size in bytes (CF free plan request body limit is 100MB)
