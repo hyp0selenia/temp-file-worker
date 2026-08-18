@@ -18,7 +18,6 @@ id = "5dc1bc094f9a4d2aba38cbdbe94090df"  # replace after creating
 crons = ["0 * * * *"]
 
 # ADMIN_PASSWORD 请在 Cloudflare Dashboard 设置（Settings → Variables and Secrets）
-# 推荐添加为 Secret（加密），不要写在本文件里
 
 [vars]
 # Max file size in bytes (CF free plan request body limit is 100MB)
