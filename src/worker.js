@@ -292,7 +292,7 @@ const HTML_ADMIN = `<!DOCTYPE html>
   </div>
 
   <script>
-    let token = sessionStorage.getItem('admin_token') || '';
+    let token = localStorage.getItem('admin_token') || '';
     const loginBox = document.getElementById('loginBox');
     const mainBox = document.getElementById('mainBox');
     const editModal = document.getElementById('editModal');
@@ -301,6 +301,7 @@ const HTML_ADMIN = `<!DOCTYPE html>
       loginBox.style.display = 'none';
       mainBox.style.display = 'block';
       switchTab('list');
+      loadList();
     }
     if (token) showMain();
 
@@ -311,14 +312,14 @@ const HTML_ADMIN = `<!DOCTYPE html>
       const d = await r.json();
       if (!r.ok) { alert(d.error || '登录失败'); return; }
       token = d.token;
-      sessionStorage.setItem('admin_token', token);
+      localStorage.setItem('admin_token', token);
       showMain();
     }
     document.getElementById('loginForm').addEventListener('submit', (e) => { e.preventDefault(); doLogin(); });
 
     document.getElementById('logoutBtn').onclick = () => {
       token = '';
-      sessionStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_token');
       mainBox.style.display = 'none';
       loginBox.style.display = 'block';
       document.getElementById('pwd').focus();
@@ -351,9 +352,7 @@ const HTML_ADMIN = `<!DOCTYPE html>
       return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    let listLoadSeq = 0;
     async function loadList() {
-      const loadSeq = ++listLoadSeq;
       const body = document.getElementById('listBody');
       const empty = document.getElementById('listEmpty');
       const count = document.getElementById('listCount');
@@ -363,7 +362,6 @@ const HTML_ADMIN = `<!DOCTYPE html>
       try {
         const r = await fetch('/api/admin/list', { headers: { Authorization: 'Bearer ' + token } });
         const d = await r.json();
-        if (loadSeq !== listLoadSeq) return;
         if (!r.ok) throw new Error(d.error || '加载失败');
         const files = d.files || [];
         count.textContent = '共 ' + files.length + ' 个文件';
@@ -611,8 +609,7 @@ async function verifyAdmin(request, env) {
   const day = Math.floor(Date.now() / 86400000);
   const valid = await hashPassword(expected + ':' + day);
   // also accept previous day for timezone edge
-  const validPrev = await hashPassword(expected + ':' + (day - 1));
-  return token === valid || token === validPrev;
+  return token === valid;
 }
 
 async function handleAdminList(request, env) {
