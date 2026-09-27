@@ -55,7 +55,7 @@ const HTML_PUBLIC = `<!DOCTYPE html>
     .hint { font-size:12px; color:#666; margin-top:6px; }
     .err { color:#ff7070; }
     .ok { color:#8fd18f; }
-    .admin-link { text-align:center; margin-top:18px; }
+    .admin-link { text-align:center; margin-top:20px; padding-top:16px; border-top:1px solid #242424; }
     .admin-link a { color:#777; font-size:13px; text-decoration:none; }
     .admin-link a:hover { color:#ddd; }
   </style>
@@ -89,8 +89,8 @@ const HTML_PUBLIC = `<!DOCTYPE html>
       <div class="progress" id="prog"><div id="bar"></div></div>
     </form>
     <div class="result" id="result"></div>
-    </div>
     <div class="admin-link"><a href="/admin">管理后台</a></div>
+    </div>
   </div>
   <script>
     (function(){
