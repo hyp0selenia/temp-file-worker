@@ -27,4 +27,5 @@ MAX_FILE_SIZE = "104857600"
 # Public max expiry days
 PUBLIC_MAX_DAYS = "7"
 # Public max download times
-PUBLIC_MAX_DOWNLOADS = "100"
+PUBLIC_MAX_DOWNLOADS = "10"
+PUBLIC_MAX_FILES = "10"

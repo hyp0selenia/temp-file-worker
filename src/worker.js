@@ -1,7 +1,7 @@
 /**
  * Cloudflare Temp File Share
  * Workers + R2 + KV
- * Public: max 100MB / 7 days / 100 downloads
+ * Public: max 10 files / 100MB / 7 days / 10 downloads
  * Admin: no limits (still subject to CF free 100MB body)
  */
 
@@ -12,21 +12,21 @@ const HTML_PUBLIC = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>临时文件分享</title>
   <style>
-    :root { --bg:#0f1115; --card:#1a1d24; --text:#e8eaed; --muted:#9aa0a6; --accent:#4f8cff; --border:#2a2f3a; --ok:#3dd68c; --err:#ff6b6b; }
+    :root { --bg:#000; --card:#0b0b0b; --text:#f2f2f2; --muted:#888; --accent:#fff; --border:#202020; --ok:#b7f7d0; --err:#ff8a8a; }
     * { box-sizing: border-box; margin:0; padding:0; }
     body { font-family: system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:2rem 1rem; }
     h1 { font-size:1.5rem; margin-bottom:0.5rem; }
     .sub { color:var(--muted); font-size:0.9rem; margin-bottom:2rem; }
     .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.5rem; width:100%; max-width:480px; }
     label { display:block; font-size:0.85rem; color:var(--muted); margin-bottom:0.4rem; }
-    input[type=file], select { width:100%; padding:0.6rem 0.75rem; border-radius:8px; border:1px solid var(--border); background:#12151b; color:var(--text); margin-bottom:1rem; }
+    input[type=file], select { width:100%; padding:0.6rem 0.75rem; border-radius:8px; border:1px solid var(--border); background:#050505; color:var(--text); margin-bottom:1rem; }
     input[type=file] { padding:0.5rem; }
     .row { display:flex; gap:0.75rem; }
     .row > div { flex:1; }
-    button { width:100%; padding:0.75rem; border:none; border-radius:8px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; font-size:1rem; }
+    button { width:100%; padding:0.75rem; border:none; border-radius:8px; background:var(--accent); color:#000; font-weight:600; cursor:pointer; font-size:1rem; }
     button:disabled { opacity:0.5; cursor:not-allowed; }
     button:hover:not(:disabled) { filter:brightness(1.1); }
-    .result { margin-top:1.25rem; padding:1rem; background:#12151b; border-radius:8px; border:1px solid var(--border); display:none; word-break:break-all; }
+    .result { margin-top:1.25rem; padding:1rem; background:#050505; border-radius:8px; border:1px solid var(--border); display:none; word-break:break-all; }
     .result.show { display:block; }
     .result a { color:var(--accent); }
     .progress { height:4px; background:var(--border); border-radius:2px; margin-top:0.75rem; overflow:hidden; display:none; }
@@ -41,10 +41,9 @@ const HTML_PUBLIC = `<!DOCTYPE html>
 </head>
 <body>
   <h1>临时文件分享</h1>
-  <p class="sub">单文件 ≤100MB · 最多 7 天 · 最多 100 次下载</p>
   <div class="card">
     <form id="form">
-      <label>选择文件（一次只能一个）</label>
+      <label>文件</label>
       <input type="file" id="file" required />
       <div class="row">
         <div>
@@ -63,9 +62,6 @@ const HTML_PUBLIC = `<!DOCTYPE html>
             <option value="f1">1 次</option>
             <option value="g5">5 次</option>
             <option value="h10" selected>10 次</option>
-            <option value="i20">20 次</option>
-            <option value="j50">50 次</option>
-            <option value="k100">100 次</option>
           </select>
         </div>
       </div>
@@ -77,7 +73,7 @@ const HTML_PUBLIC = `<!DOCTYPE html>
   <div class="admin-link"><a href="/admin">管理后台</a></div>
   <script>
     (function(){
-      const _m = {a1:1,b2:2,c3:3,d5:5,e7:7,f1:1,g5:5,h10:10,i20:20,j50:50,k100:100};
+      const _m = {a1:1,b2:2,c3:3,d5:5,e7:7,f1:1,g5:5,h10:10};
       const _k1 = 'x7k2m9p', _k2 = 'q4w8n3r';
       const _enc = (n) => btoa(String(n * 17 + 93)).replace(/=+$/,'');
       const form = document.getElementById('form');
@@ -149,7 +145,7 @@ const HTML_ADMIN = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>管理后台</title>
   <style>
-    :root { --bg:#0b0d11; --card:#151820; --text:#e8eaed; --muted:#8b929a; --accent:#4f8cff; --border:#252a35; --ok:#3dd68c; --err:#ff6b6b; --danger:#e74c3c; --input:#0e1117; }
+    :root { --bg:#000; --card:#0b0b0b; --text:#f2f2f2; --muted:#8a8a8a; --accent:#fff; --border:#202020; --ok:#3dd68c; --err:#ff6b6b; --danger:#e74c3c; --input:#0e1117; }
     * { box-sizing: border-box; margin:0; padding:0; }
     body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:1.5rem 1rem 3rem; }
     .wrap { max-width:860px; margin:0 auto; }
@@ -159,7 +155,7 @@ const HTML_ADMIN = `<!DOCTYPE html>
     label { display:block; font-size:0.8rem; color:var(--muted); margin-bottom:0.35rem; }
     input, select { width:100%; padding:0.55rem 0.7rem; border-radius:9px; border:1px solid var(--border); background:var(--input); color:var(--text); margin-bottom:0.75rem; font-size:0.9rem; outline:none; }
     input:focus, select:focus { border-color:var(--accent); }
-    button, .btn { padding:0.55rem 0.95rem; border:none; border-radius:9px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; font-size:0.875rem; transition:filter .15s; }
+    button, .btn { padding:0.55rem 0.95rem; border:none; border-radius:9px; background:var(--accent); color:#000; font-weight:600; cursor:pointer; font-size:0.875rem; transition:filter .15s; }
     button:hover:not(:disabled) { filter:brightness(1.08); }
     button:disabled { opacity:0.5; cursor:not-allowed; }
     button.danger { background:var(--danger); }
@@ -169,7 +165,7 @@ const HTML_ADMIN = `<!DOCTYPE html>
     .row > div { flex:1; min-width:130px; }
     .tabs { display:flex; gap:0.4rem; margin-bottom:0.9rem; background:var(--card); border:1px solid var(--border); border-radius:11px; padding:0.3rem; }
     .tabs button { flex:1; background:transparent; border:none; color:var(--muted); padding:0.5rem; border-radius:8px; font-weight:500; }
-    .tabs button.active { background:var(--accent); color:#fff; }
+    .tabs button.active { background:var(--accent); color:#000; }
     .result { margin-top:0.9rem; padding:0.8rem; background:var(--input); border-radius:9px; border:1px solid var(--border); display:none; word-break:break-all; font-size:0.875rem; }
     .result.show { display:block; }
     .result a { color:var(--accent); }
@@ -206,7 +202,7 @@ const HTML_ADMIN = `<!DOCTYPE html>
   <div class="wrap">
     <div id="loginBox" class="card login">
       <h1>管理后台</h1>
-      <p class="sub">登录后管理文件</p>
+      
       <form id="loginForm">
         <label>管理员密码</label>
         <input type="password" id="pwd" autocomplete="current-password" autofocus />
@@ -218,7 +214,7 @@ const HTML_ADMIN = `<!DOCTYPE html>
       <div class="topbar">
         <div>
           <h1>管理后台</h1>
-          <p class="sub">文件管理 · 上传</p>
+          
         </div>
         <div style="display:flex;gap:0.5rem;align-items:center">
           <a href="/">← 前台</a>
@@ -259,11 +255,11 @@ const HTML_ADMIN = `<!DOCTYPE html>
           <input type="file" id="file" required />
           <div class="row">
             <div>
-              <label>有效期（天，0=永不过期）</label>
+              <label>有效期（天）</label>
               <input type="number" id="days" min="0" value="30" />
             </div>
             <div>
-              <label>最大下载次数（0=无限）</label>
+              <label>最大下载次数</label>
               <input type="number" id="maxdl" min="0" value="0" />
             </div>
           </div>
@@ -281,11 +277,11 @@ const HTML_ADMIN = `<!DOCTYPE html>
       <p class="meta" id="editName" style="margin-bottom:0.85rem"></p>
       <form id="editForm">
         <input type="hidden" id="editId" />
-        <label>剩余有效天数（0=永不过期）</label>
+        <label>有效天数</label>
         <input type="number" id="editDays" min="0" value="0" />
-        <label>最大下载次数（0=无限）</label>
+        <label>最大下载次数</label>
         <input type="number" id="editMax" min="0" value="0" />
-        <label>已下载次数（可重置）</label>
+        <label>已下载次数</label>
         <input type="number" id="editDl" min="0" value="0" />
         <div class="actions">
           <button type="button" class="ghost" id="editCancel">取消</button>
@@ -742,6 +738,21 @@ async function handleUpload(request, env) {
 
     let days, maxDownloads;
 
+    if (!isAdmin) {
+      const publicMaxFiles = parseInt(env.PUBLIC_MAX_FILES || '10', 10);
+      const list = await env.META.list({ prefix: 'file:' });
+      let publicFileCount = 0;
+      for (const key of list.keys) {
+        const meta = await env.META.get(key.name, 'json');
+        if (!meta) continue;
+        if (meta.expiresAt && new Date(meta.expiresAt).getTime() < Date.now()) continue;
+        if (meta.isAdmin !== true) publicFileCount++;
+        if (publicFileCount >= publicMaxFiles) {
+          return json({ error: `公开文件最多 ${publicMaxFiles} 个` }, 429);
+        }
+      }
+    }
+
     if (isAdmin) {
       // 后台：明文 days / maxDownloads，0 = 无限制
       days = parseInt(form.get('days') || '0', 10);
@@ -751,9 +762,9 @@ async function handleUpload(request, env) {
     } else {
       // 前台：只认混淆字段，忽略明文 days/maxDownloads，防止绕过
       const publicMaxDays = parseInt(env.PUBLIC_MAX_DAYS || '7', 10);
-      const publicMaxDl = parseInt(env.PUBLIC_MAX_DOWNLOADS || '100', 10);
+      const publicMaxDl = parseInt(env.PUBLIC_MAX_DOWNLOADS || '10', 10);
       const allowedDays = new Set([1, 2, 3, 5, 7]);
-      const allowedDl = new Set([1, 5, 10, 20, 50, 100]);
+      const allowedDl = new Set([1, 5, 10]);
 
       days = decObf(form.get('z9f3k7x'));
       maxDownloads = decObf(form.get('p2m8q5w'));
@@ -797,6 +808,7 @@ async function handleUpload(request, env) {
       expiresAt,
       maxDownloads,
       downloads: 0,
+      public: !isAdmin,
       isAdmin: !!isAdmin,
     };
 
