@@ -12,36 +12,58 @@ const HTML_PUBLIC = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>临时文件分享</title>
   <style>
-    :root { --bg:#000; --card:#0b0b0b; --text:#f2f2f2; --muted:#888; --accent:#fff; --border:#202020; --ok:#b7f7d0; --err:#ff8a8a; }
-    * { box-sizing: border-box; margin:0; padding:0; }
-    body { font-family: system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1rem; }
-    h1 { font-size:1.5rem; margin-bottom:0.5rem; }
-    .sub { color:var(--muted); font-size:0.9rem; margin-bottom:2rem; }
-    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.5rem; width:100%; max-width:480px; }
-    label { display:block; font-size:0.85rem; color:var(--muted); margin-bottom:0.4rem; }
-    input[type=file], select { width:100%; padding:0.6rem 0.75rem; border-radius:8px; border:1px solid var(--border); background:#050505; color:var(--text); margin-bottom:1rem; }
-    input[type=file] { padding:0.5rem; }
-    .row { display:flex; gap:0.75rem; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { color-scheme: dark; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0a0a0a;
+      color: #f2f2f2;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container { width: 100%; max-width: 460px; }
+    .card {
+      width: 100%;
+      background: #111;
+      border: 1px solid #242424;
+      border-radius: 12px;
+      padding: 28px;
+    }
+    h1 { color:#f5f5f5; margin-bottom:24px; font-size:22px; font-weight:600; }
+    label { display:block; margin-bottom:7px; color:#a8a8a8; font-size:13px; }
+    input[type=file], select {
+      width:100%; padding:11px 12px; border:1px solid #303030; border-radius:7px;
+      background:#0b0b0b; color:#f2f2f2; font-size:14px; margin-bottom:18px;
+    }
+    input[type=file] { padding:9px; }
+    .row { display:flex; gap:12px; }
     .row > div { flex:1; }
-    button { width:100%; padding:0.75rem; border:none; border-radius:8px; background:var(--accent); color:#000; font-weight:600; cursor:pointer; font-size:1rem; }
-    button:disabled { opacity:0.5; cursor:not-allowed; }
-    button:hover:not(:disabled) { filter:brightness(1.1); }
-    .result { margin-top:1.25rem; padding:1rem; background:#050505; border-radius:8px; border:1px solid var(--border); display:none; word-break:break-all; }
+    button {
+      width:100%; padding:11px; background:#f2f2f2; color:#111; border:0; border-radius:7px;
+      font-size:14px; font-weight:600; cursor:pointer;
+    }
+    button:hover:not(:disabled) { background:#dcdcdc; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .result { margin-top:18px; padding:14px; background:#171717; border:1px solid #292929; border-radius:7px; display:none; word-break:break-all; }
     .result.show { display:block; }
-    .result a { color:var(--accent); }
-    .progress { height:4px; background:var(--border); border-radius:2px; margin-top:0.75rem; overflow:hidden; display:none; }
-    .progress > div { height:100%; background:var(--accent); width:0%; transition:width 0.2s; }
-    .hint { font-size:0.8rem; color:var(--muted); margin-top:0.5rem; }
-    .err { color:var(--err); }
-    .ok { color:var(--ok); }
-    .admin-link { margin-top:1.5rem; }
-    .admin-link a { display:inline-block; padding:0.5rem 1rem; border:1px solid var(--border); border-radius:8px; color:var(--muted); text-decoration:none; font-size:0.85rem; }
-    .admin-link a:hover { color:var(--text); border-color:var(--accent); }
+    .result a { color:#ddd; }
+    .progress { height:4px; background:#242424; border-radius:2px; margin-top:12px; overflow:hidden; display:none; }
+    .progress > div { height:100%; background:#f2f2f2; width:0%; transition:width .2s; }
+    .hint { font-size:12px; color:#666; margin-top:6px; }
+    .err { color:#ff7070; }
+    .ok { color:#8fd18f; }
+    .admin-link { text-align:center; margin-top:18px; }
+    .admin-link a { color:#777; font-size:13px; text-decoration:none; }
+    .admin-link a:hover { color:#ddd; }
   </style>
 </head>
 <body>
-  <h1>临时文件分享</h1>
-  <div class="card">
+  <div class="container">
+    <div class="card">
+      <h1>临时文件分享</h1>
     <form id="form">
       <label>文件</label>
       <input type="file" id="file" required />
@@ -50,10 +72,8 @@ const HTML_PUBLIC = `<!DOCTYPE html>
           <label>有效期</label>
           <select id="x7k2m9p">
             <option value="a1">1 天</option>
-            <option value="b2">2 天</option>
-            <option value="c3">3 天</option>
-            <option value="d5">5 天</option>
             <option value="e7" selected>7 天</option>
+            <option value="z30">30 天</option>
           </select>
         </div>
         <div>
@@ -69,11 +89,12 @@ const HTML_PUBLIC = `<!DOCTYPE html>
       <div class="progress" id="prog"><div id="bar"></div></div>
     </form>
     <div class="result" id="result"></div>
+    </div>
+    <div class="admin-link"><a href="/admin">管理后台</a></div>
   </div>
-  <div class="admin-link"><a href="/admin">管理后台</a></div>
   <script>
     (function(){
-      const _m = {a1:1,b2:2,c3:3,d5:5,e7:7,f1:1,g5:5,h10:10};
+      const _m = {a1:1,e7:7,z30:30,f1:1,g5:5,h10:10};
       const _k1 = 'x7k2m9p', _k2 = 'q4w8n3r';
       const _enc = (n) => btoa(String(n * 17 + 93)).replace(/=+$/,'');
       const form = document.getElementById('form');
@@ -147,11 +168,11 @@ const HTML_ADMIN = `<!DOCTYPE html>
   <style>
     :root { --bg:#000; --card:#0b0b0b; --text:#f2f2f2; --muted:#8a8a8a; --accent:#fff; --border:#202020; --ok:#3dd68c; --err:#ff6b6b; --danger:#e74c3c; --input:#0e1117; }
     * { box-sizing: border-box; margin:0; padding:0; }
-    body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:1.5rem 1rem 3rem; }
-    .wrap { max-width:860px; margin:0 auto; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:#0a0a0a; color:#e8e8e8; min-height:100vh; padding:24px; }
+    .wrap { max-width:900px; margin:0 auto; }
     h1 { font-size:1.35rem; font-weight:650; letter-spacing:-0.02em; }
     .sub { color:var(--muted); font-size:0.85rem; margin-top:0.2rem; }
-    .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.15rem 1.25rem; margin-bottom:1rem; }
+    .card { background:#111; border:1px solid #242424; border-radius:12px; padding:24px; margin-bottom:18px; }
     label { display:block; font-size:0.8rem; color:var(--muted); margin-bottom:0.35rem; }
     input, select { width:100%; padding:0.55rem 0.7rem; border-radius:9px; border:1px solid var(--border); background:var(--input); color:var(--text); margin-bottom:0.75rem; font-size:0.9rem; outline:none; }
     input:focus, select:focus { border-color:var(--accent); }
@@ -173,7 +194,7 @@ const HTML_ADMIN = `<!DOCTYPE html>
     .progress > div { height:100%; background:var(--accent); width:0%; transition:width .15s; }
     .err { color:var(--err); } .ok { color:var(--ok); }
     .login { max-width:340px; margin:0 auto; }
-    .login h1 { margin-bottom:0.15rem; }
+    .login h1 { margin-bottom:20px; }
     .login .sub { margin-bottom:1.1rem; }
     table { width:100%; border-collapse:collapse; font-size:0.84rem; }
     th, td { text-align:left; padding:0.65rem 0.45rem; border-bottom:1px solid var(--border); vertical-align:middle; }
@@ -760,9 +781,9 @@ async function handleUpload(request, env) {
       if (isNaN(maxDownloads) || maxDownloads < 0) maxDownloads = 0;
     } else {
       // 前台：只认混淆字段，忽略明文 days/maxDownloads，防止绕过
-      const publicMaxDays = parseInt(env.PUBLIC_MAX_DAYS || '7', 10);
+      const publicMaxDays = parseInt(env.PUBLIC_MAX_DAYS || '30', 10);
       const publicMaxDl = parseInt(env.PUBLIC_MAX_DOWNLOADS || '10', 10);
-      const allowedDays = new Set([1, 2, 3, 5, 7]);
+      const allowedDays = new Set([1, 7, 30]);
       const allowedDl = new Set([1, 5, 10]);
 
       days = decObf(form.get('z9f3k7x'));
