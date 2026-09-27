@@ -14,7 +14,7 @@ const HTML_PUBLIC = `<!DOCTYPE html>
   <style>
     :root { --bg:#000; --card:#0b0b0b; --text:#f2f2f2; --muted:#888; --accent:#fff; --border:#202020; --ok:#b7f7d0; --err:#ff8a8a; }
     * { box-sizing: border-box; margin:0; padding:0; }
-    body { font-family: system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:2rem 1rem; }
+    body { font-family: system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1rem; }
     h1 { font-size:1.5rem; margin-bottom:0.5rem; }
     .sub { color:var(--muted); font-size:0.9rem; margin-bottom:2rem; }
     .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.5rem; width:100%; max-width:480px; }
@@ -172,7 +172,7 @@ const HTML_ADMIN = `<!DOCTYPE html>
     .progress { height:3px; background:var(--border); border-radius:2px; margin-top:0.7rem; overflow:hidden; display:none; }
     .progress > div { height:100%; background:var(--accent); width:0%; transition:width .15s; }
     .err { color:var(--err); } .ok { color:var(--ok); }
-    .login { max-width:340px; margin:3rem auto; }
+    .login { max-width:340px; margin:0 auto; }
     .login h1 { margin-bottom:0.15rem; }
     .login .sub { margin-bottom:1.1rem; }
     table { width:100%; border-collapse:collapse; font-size:0.84rem; }
