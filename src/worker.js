@@ -301,7 +301,6 @@ const HTML_ADMIN = `<!DOCTYPE html>
       loginBox.style.display = 'none';
       mainBox.style.display = 'block';
       switchTab('list');
-      loadList();
     }
     if (token) showMain();
 
@@ -352,7 +351,9 @@ const HTML_ADMIN = `<!DOCTYPE html>
       return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    let listLoadSeq = 0;
     async function loadList() {
+      const loadSeq = ++listLoadSeq;
       const body = document.getElementById('listBody');
       const empty = document.getElementById('listEmpty');
       const count = document.getElementById('listCount');
@@ -362,6 +363,7 @@ const HTML_ADMIN = `<!DOCTYPE html>
       try {
         const r = await fetch('/api/admin/list', { headers: { Authorization: 'Bearer ' + token } });
         const d = await r.json();
+        if (loadSeq !== listLoadSeq) return;
         if (!r.ok) throw new Error(d.error || '加载失败');
         const files = d.files || [];
         count.textContent = '共 ' + files.length + ' 个文件';
